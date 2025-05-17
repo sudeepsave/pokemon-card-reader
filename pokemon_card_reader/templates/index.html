@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pokémon Card Finder</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1 style="text-align:center;">Pokémon Card Reader</h1>
+
+  <form method="get" style="text-align:center; margin-bottom: 20px;">
+    <input type="text" name="name" value="{{ search_name }}" placeholder="Enter Pokémon name">
+    <input type="text" name="card_type" value="{{ search_type }}" placeholder="Enter card type (e.g. GX, VMAX, Alt Art)">
+    <button type="submit">Search</button>
+  </form>
+
+  {% if search_name %}
+    <p style="text-align:center; color: #999;">
+      ⚠️ Note: Search works best with accurate Pokémon names. Close matches will try to auto-correct.
+    </p>
+  {% endif %}
+
+  {% if search_name and fixed_name and search_name|lower != fixed_name|lower %}
+    <p style="text-align:center; color: orange;">
+      Did you mean: <strong>{{ fixed_name }}</strong>?
+    </p>
+  {% endif %}
+
+  <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+    {% for card in cards %}
+      <div style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin: 10px; width: 160px; text-align: center;">
+        <img src="{{ card.images.small }}" alt="{{ card.name }}" style="width:100%; height:auto;"><br>
+        <strong>{{ card.name }}</strong><br>
+        {{ card.types[0] if card.types }}<br>
+        {% if card.tcgplayer and card.tcgplayer.prices %}
+          {% if card.tcgplayer.prices.normal %}
+            <strong>${{ card.tcgplayer.prices.normal.market }}</strong>
+          {% elif card.tcgplayer.prices.holofoil %}
+            <strong>${{ card.tcgplayer.prices.holofoil.market }}</strong>
+          {% elif card.tcgplayer.prices.reverseHolofoil %}
+            <strong>${{ card.tcgplayer.prices.reverseHolofoil.market }}</strong>
+          {% else %}
+            <span style="color: gray;">Price N/A</span>
+          {% endif %}
+        {% else %}
+          <span style="color: gray;">Price N/A</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</body>
+</html>
